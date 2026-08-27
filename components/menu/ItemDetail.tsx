@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check, LoaderCircle } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { QuantitySelector } from "@/components/shared/QuantitySelector";
 import { CartBar } from "@/components/menu/CartBar";
@@ -28,17 +28,29 @@ export function ItemDetail({
   const addItem = useCartStore((state) => state.addItem);
   const [sizeId, setSizeId] = useState(item.sizes[0]?.id ?? "");
   const [qty, setQty] = useState(1);
+  const [adding, setAdding] = useState(false);
   const [added, setAdded] = useState(false);
+  const [openingCart, setOpeningCart] = useState(false);
   const selected = item.sizes.find((size) => size.id === sizeId) ?? item.sizes[0];
   const view = mode === "view";
   const photo = hasItemImage(item.imageUrl);
 
   function add() {
-    if (!selected) return;
+    if (!selected || adding || added) return;
+    setAdding(true);
     addItem(item, selected.id, qty);
-    setAdded(true);
     void trackVisit({ page: "add-to-cart", branchId: branch.id });
-    window.setTimeout(() => setAdded(false), 1400);
+    window.setTimeout(() => {
+      setAdding(false);
+      setAdded(true);
+      window.setTimeout(() => setAdded(false), 1400);
+    }, 450);
+  }
+
+  function openCart() {
+    if (openingCart) return;
+    setOpeningCart(true);
+    router.push(`/${branch.slug}/cart`);
   }
 
   return (
@@ -119,9 +131,15 @@ export function ItemDetail({
               <button
                 type="button"
                 onClick={add}
-                className="mt-6 flex min-h-14 w-full items-center justify-center gap-2 bg-gold text-[16px] font-semibold text-black"
+                disabled={adding}
+                className="mt-6 flex min-h-14 w-full items-center justify-center gap-2 bg-gold text-[16px] font-semibold text-black disabled:opacity-80"
               >
-                {added ? (
+                {adding ? (
+                  <>
+                    <LoaderCircle className="size-5 animate-spin" />
+                    جاري الإضافة
+                  </>
+                ) : added ? (
                   <>
                     <Check className="size-5" /> تمت الإضافة
                   </>
@@ -131,10 +149,18 @@ export function ItemDetail({
               </button>
               <button
                 type="button"
-                onClick={() => router.push(`/${branch.slug}/cart`)}
-                className="mt-3 min-h-12 w-full text-[14px] text-muted"
+                onClick={openCart}
+                disabled={openingCart}
+                className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 text-[14px] text-muted"
               >
-                عرض السلة
+                {openingCart ? (
+                  <>
+                    <LoaderCircle className="size-4 animate-spin" />
+                    جاري التحميل
+                  </>
+                ) : (
+                  "عرض السلة"
+                )}
               </button>
             </div>
           )}

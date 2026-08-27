@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, ChevronLeft } from "lucide-react";
+import { ArrowRight, ChevronLeft, LoaderCircle } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { CartBar } from "@/components/menu/CartBar";
 import { hasItemImage, priceLabel } from "@/lib/menu-utils";
@@ -296,10 +296,12 @@ function MenuRow({
   href: string;
 }) {
   const photo = hasItemImage(item.imageUrl);
+  const [opening, setOpening] = useState(false);
 
   return (
     <Link
       href={href}
+      onClick={() => setOpening(true)}
       className="flex items-start gap-4 border-b border-line py-4 transition hover:bg-white/[0.03] lg:border-b lg:py-5"
     >
       <span className="mt-1 w-7 shrink-0 text-[12px] tabular-nums text-gold lg:text-[13px]">
@@ -320,7 +322,11 @@ function MenuRow({
           <span className="shrink-0 text-[15px] font-semibold tabular-nums text-gold lg:text-[17px]">
             {priceLabel(item)}
           </span>
-          <ChevronLeft className="size-4 shrink-0 text-gold" aria-hidden />
+          {opening ? (
+            <LoaderCircle className="size-4 shrink-0 animate-spin text-gold" aria-hidden />
+          ) : (
+            <ChevronLeft className="size-4 shrink-0 text-gold" aria-hidden />
+          )}
         </div>
         {item.sizes.length > 1 ? (
           <p className="mt-1 text-[12px] text-muted lg:text-[13px]">
