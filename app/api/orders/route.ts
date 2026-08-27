@@ -64,7 +64,7 @@ export async function POST(request: Request) {
         notes: notes || null,
         subtotal,
         status: "new",
-        source: "whatsapp",
+        source: "web",
       });
       await db.insert(orderItems).values(
         parsed.map((item) => ({

@@ -16,6 +16,7 @@ export function buildOrderMessage(
   items: CartLine[],
   customerName: string,
   notes: string,
+  phone = "",
 ) {
   const lines = items.map(
     (item) =>
@@ -26,6 +27,7 @@ export function buildOrderMessage(
     `طلب جديد — مطاعم خميس`,
     `الفرع: ${branch.nameAr}`,
     customerName ? `الاسم: ${customerName}` : "",
+    phone ? `الهاتف: ${phone}` : "",
     "",
     ...lines,
     "",

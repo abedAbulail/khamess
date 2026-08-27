@@ -2,17 +2,20 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowRight, Trash2 } from "lucide-react";
 import { QuantitySelector } from "@/components/shared/QuantitySelector";
 import { useHydratedCart } from "@/components/menu/CartBar";
 import { getCartSubtotal, useCartStore } from "@/lib/cart";
 import { formatPrice } from "@/lib/cn";
+import { saveLastOrder } from "@/lib/last-order";
 import { hasItemImage } from "@/lib/menu-utils";
 import type { Branch } from "@/lib/types";
 import { VisitTracker } from "@/lib/visit-client";
-import { buildOrderMessage, getWhatsAppUrl } from "@/lib/whatsapp";
+import { buildOrderMessage } from "@/lib/whatsapp";
 
 export function CartView({ branch }: { branch: Branch }) {
+  const router = useRouter();
   const { ready, items } = useHydratedCart();
   const setQuantity = useCartStore((state) => state.setQuantity);
   const removeItem = useCartStore((state) => state.removeItem);
@@ -55,9 +58,17 @@ export function CartView({ branch }: { branch: Branch }) {
         setError("ما قدرناش نحفظ الطلب، جرّب مرة ثانية");
         return;
       }
-      const message = buildOrderMessage(branch, lines, name.trim(), notes.trim());
+      const created = (await response.json()) as { id?: string; subtotal?: number };
+      const message = buildOrderMessage(branch, lines, name.trim(), notes.trim(), phone.trim());
+      saveLastOrder(branch.slug, {
+        id: created.id ?? "",
+        name: name.trim(),
+        total: created.subtotal ?? total,
+        whatsapp: branch.whatsapp,
+        message,
+      });
       clearBranch(branch.id);
-      window.location.href = getWhatsAppUrl(branch.whatsapp, message);
+      router.push(`/${branch.slug}/order-success`);
     } catch {
       setError("في مشكلة بالاتصال");
     } finally {
@@ -146,7 +157,7 @@ export function CartView({ branch }: { branch: Branch }) {
               disabled={sending}
               className="mt-5 min-h-14 w-full bg-gold text-[16px] font-semibold text-black disabled:opacity-60"
             >
-              {sending ? "جارٍ الإرسال…" : "اطلب عبر واتساب"}
+              {sending ? "جارٍ الإرسال…" : "تأكيد الطلب"}
             </button>
           </div>
         </>
