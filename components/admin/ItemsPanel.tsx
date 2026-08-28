@@ -54,6 +54,7 @@ export function ItemsPanel({
     available: boolean;
     sizes: SizeDraft[];
     imageFile?: File | null;
+    removeImage?: boolean;
   }) {
     if (!menu) return;
     setSaving(true);
@@ -80,6 +81,7 @@ export function ItemsPanel({
           categoryId: payload.categoryId,
           available: payload.available,
           sizes,
+          ...(payload.removeImage && !payload.imageFile ? { imageUrl: "" } : {}),
         }),
       });
       if (payload.imageFile) {
@@ -284,6 +286,7 @@ function ItemForm({
     available: boolean;
     sizes: SizeDraft[];
     imageFile?: File | null;
+    removeImage?: boolean;
   }) => void;
 }) {
   const [nameAr, setNameAr] = useState(item?.nameAr ?? "");
@@ -297,6 +300,7 @@ function ItemForm({
       : [{ nameAr: "حجم واحد", price: "10" }],
   );
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [removeImage, setRemoveImage] = useState(false);
   const [preview, setPreview] = useState(
     hasItemImage(item?.imageUrl) ? item?.imageUrl ?? "" : "",
   );
@@ -325,6 +329,7 @@ function ItemForm({
           available,
           sizes,
           imageFile,
+          removeImage,
         });
       }}
     >
@@ -496,14 +501,32 @@ function ItemForm({
                 </div>
               )}
               <input
+                key={preview || "empty"}
                 type="file"
                 accept="image/*"
                 className="hidden"
-                onChange={(event) => setImageFile(event.target.files?.[0] ?? null)}
+                onChange={(event) => {
+                  setRemoveImage(false);
+                  setImageFile(event.target.files?.[0] ?? null);
+                }}
               />
             </label>
             {preview ? (
-              <p className="mt-3 text-center text-[12px] text-[var(--admin-muted)]">اضغط الصورة لتغييرها</p>
+              <div className="mt-3 flex flex-col items-center gap-2">
+                <p className="text-center text-[12px] text-[var(--admin-muted)]">اضغط الصورة لتغييرها</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setImageFile(null);
+                    setPreview("");
+                    setRemoveImage(true);
+                  }}
+                  className="admin-btn admin-btn-ghost inline-flex h-10 items-center gap-2 text-[13px] text-[var(--admin-danger)]"
+                >
+                  <Trash2 className="size-4" />
+                  حذف الصورة
+                </button>
+              </div>
             ) : null}
           </section>
         </aside>
