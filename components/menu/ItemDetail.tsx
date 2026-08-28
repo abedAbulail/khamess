@@ -31,6 +31,7 @@ export function ItemDetail({
   const [adding, setAdding] = useState(false);
   const [added, setAdded] = useState(false);
   const [openingCart, setOpeningCart] = useState(false);
+  const [goingBack, setGoingBack] = useState(false);
   const selected = item.sizes.find((size) => size.id === sizeId) ?? item.sizes[0];
   const view = mode === "view";
   const photo = hasItemImage(item.imageUrl);
@@ -72,9 +73,15 @@ export function ItemDetail({
           )}
           <Link
             href={view ? `/view/${branch.slug}` : `/${branch.slug}/menu`}
+            onClick={() => setGoingBack(true)}
+            aria-label="رجوع"
             className="absolute right-4 top-4 inline-flex size-11 items-center justify-center border border-gold/50 bg-black/70 text-gold"
           >
-            <ArrowRight className="size-5" />
+            {goingBack ? (
+              <LoaderCircle className="size-5 animate-spin" />
+            ) : (
+              <ArrowRight className="size-5" />
+            )}
           </Link>
         </div>
 

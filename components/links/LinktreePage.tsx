@@ -20,6 +20,7 @@ export function LinktreePage({
   const [shareNote, setShareNote] = useState("");
   const [welcome, setWelcome] = useState(true);
   const [menuLoading, setMenuLoading] = useState(false);
+  const [goingBack, setGoingBack] = useState(false);
 
   useEffect(() => {
     setUrl(window.location.origin + `/${branch.slug}`);
@@ -145,8 +146,19 @@ export function LinktreePage({
       <section className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,#e6911033_0%,#e691101a_28%,#e691100d_52%,transparent_100%)]" />
         <div className="relative mx-auto max-w-md px-6 pb-10 pt-8">
-          <Link href="/" className="text-[13px] text-muted">
-            ← كل الفروع
+          <Link
+            href="/"
+            onClick={() => setGoingBack(true)}
+            className="inline-flex min-h-9 items-center gap-1.5 text-[13px] text-muted"
+          >
+            {goingBack ? (
+              <>
+                <LoaderCircle className="size-4 animate-spin" />
+                جاري التحميل
+              </>
+            ) : (
+              "← كل الفروع"
+            )}
           </Link>
           <div className="mt-8 flex flex-col items-center text-center">
             <div className="size-48 sm:size-56">

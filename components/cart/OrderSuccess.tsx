@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Check, MessageCircle } from "lucide-react";
+import { Check, LoaderCircle, MessageCircle } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { formatPrice } from "@/lib/cn";
 import { readLastOrder, type LastOrder } from "@/lib/last-order";
@@ -17,6 +17,7 @@ export function OrderSuccess({
 }) {
   const [order, setOrder] = useState<LastOrder | null>(null);
   const [ready, setReady] = useState(false);
+  const [goingBack, setGoingBack] = useState(false);
 
   useEffect(() => {
     setOrder(readLastOrder(branchSlug));
@@ -68,9 +69,17 @@ export function OrderSuccess({
 
         <Link
           href={`/${branchSlug}/menu`}
-          className="mt-6 inline-flex min-h-12 items-center justify-center text-[15px] text-muted"
+          onClick={() => setGoingBack(true)}
+          className="mt-6 inline-flex min-h-12 items-center justify-center gap-2 text-[15px] text-muted"
         >
-          الرجوع للمنيو
+          {goingBack ? (
+            <>
+              <LoaderCircle className="size-4 animate-spin" />
+              جاري التحميل
+            </>
+          ) : (
+            "الرجوع للمنيو"
+          )}
         </Link>
       </div>
     </main>

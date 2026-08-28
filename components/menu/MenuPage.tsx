@@ -17,6 +17,7 @@ export function MenuPage({
   mode: "order" | "view";
 }) {
   const [active, setActive] = useState(menu.categories[0]?.id ?? "");
+  const [goingBack, setGoingBack] = useState(false);
   const view = mode === "view";
   const categories = useMemo(
     () =>
@@ -46,23 +47,33 @@ export function MenuPage({
           <div className="flex items-center justify-between">
             <Link
               href={view ? "/" : `/${menu.slug}`}
-              className="inline-flex items-center gap-1 text-[13px] text-white/80 lg:text-[15px]"
+              onClick={() => setGoingBack(true)}
+              className="inline-flex min-h-9 items-center gap-1.5 text-[13px] text-white/80 lg:text-[15px]"
             >
-              <ArrowRight className="size-4" />
-              {view ? "الفروع" : "الروابط"}
+              {goingBack ? (
+                <>
+                  <LoaderCircle className="size-4 animate-spin" />
+                  جاري التحميل
+                </>
+              ) : (
+                <>
+                  <ArrowRight className="size-4" />
+                  {view ? "الفروع" : "الروابط"}
+                </>
+              )}
             </Link>
             {view ? (
-              <span className="border border-gold/40 px-3 py-1 text-[11px] tracking-[0.2em] text-gold">
+              <span className="border border-gold/40 px-3 py-1 text-[11px] text-gold">
                 للعرض داخل المطعم
               </span>
             ) : null}
           </div>
           <div className="mt-auto flex flex-col items-center pb-2 pt-16 text-center">
             <Logo className="h-24 w-auto sm:h-28 lg:h-36" />
-            <p className="mt-5 text-[11px] tracking-[0.4em] text-gold lg:text-[13px]">
+            <p className="mt-5 text-[12px] text-gold lg:text-[14px]">
               تأسس عام {menu.founded}
             </p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-wide lg:text-5xl">
+            <h1 className="mt-2 text-3xl font-semibold lg:text-5xl">
               {view ? "قائمة الطعام" : "المنيو"}
             </h1>
             <p className="mt-1 text-[14px] text-white/75 lg:mt-3 lg:text-[18px]">{menu.nameAr}</p>
@@ -87,7 +98,7 @@ export function MenuPage({
                   .getElementById(category.id)
                   ?.scrollIntoView({ behavior: "smooth", block: "start" });
               }}
-              className={`shrink-0 border px-4 py-2 text-[13px] lg:px-5 lg:py-2.5 lg:text-[14px] ${
+              className={`shrink-0 whitespace-nowrap border px-4 py-2 text-[13px] leading-6 lg:px-5 lg:py-2.5 lg:text-[14px] ${
                 active === category.id
                   ? "border-gold bg-gold text-black"
                   : "border-line text-ink"
@@ -96,6 +107,7 @@ export function MenuPage({
               {category.nameAr}
             </button>
           ))}
+          <span className="w-2 shrink-0" aria-hidden />
         </div>
       </nav>
 
@@ -235,7 +247,7 @@ function WelcomeBand({ banner }: { banner: MenuBanner }) {
       />
       <div className="absolute inset-0 bg-black/60" />
       <div className="relative mx-auto flex min-h-[22rem] max-w-4xl flex-col items-center justify-center px-6 py-16 text-center sm:min-h-[26rem] lg:min-h-[34rem]">
-        <p className="text-[12px] tracking-[0.35em] text-gold lg:text-[14px]">{banner.kicker}</p>
+        <p className="text-[13px] text-gold lg:text-[15px]">{banner.kicker}</p>
         <h2 className="mt-3 text-3xl font-semibold sm:text-4xl lg:text-5xl">{banner.title}</h2>
         <p className="mt-4 max-w-sm whitespace-pre-line text-[16px] leading-8 text-white/85 lg:max-w-lg lg:text-[18px] lg:leading-9">
           {banner.text}
@@ -258,7 +270,7 @@ function CategoryBlock({
     <section id={category.id} className="scroll-mt-24 pb-12 lg:pb-16">
       <div className="flex items-center gap-4">
         <span className="menu-rule h-px flex-1" />
-        <h2 className="shrink-0 text-[15px] font-semibold tracking-[0.18em] text-gold lg:text-[18px]">
+        <h2 className="shrink-0 px-1 text-[16px] font-semibold leading-8 text-gold lg:text-[18px]">
           {category.nameAr}
         </h2>
         <span className="menu-rule h-px flex-1" />
@@ -316,26 +328,28 @@ function MenuRow({
         />
       ) : null}
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-3">
-          <h3 className="text-[17px] font-semibold lg:text-[19px]">{item.nameAr}</h3>
-          <span className="menu-rule h-px min-w-6 flex-1" />
-          <span className="shrink-0 text-[15px] font-semibold tabular-nums text-gold lg:text-[17px]">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <h3 className="min-w-0 text-[17px] font-semibold leading-7 lg:text-[19px]">
+            {item.nameAr}
+          </h3>
+          <span className="menu-rule h-px min-w-4 flex-1" />
+          <span className="shrink-0 text-[15px] font-semibold leading-7 tabular-nums text-gold lg:text-[17px]">
             {priceLabel(item)}
           </span>
           {opening ? (
-            <LoaderCircle className="size-4 shrink-0 animate-spin text-gold" aria-hidden />
+            <LoaderCircle className="size-6 shrink-0 animate-spin text-gold" aria-hidden />
           ) : (
-            <ChevronLeft className="size-4 shrink-0 text-gold" aria-hidden />
+            <ChevronLeft className="size-6 shrink-0 text-gold" strokeWidth={2.75} aria-hidden />
           )}
         </div>
         {item.sizes.length > 1 ? (
-          <p className="mt-1 text-[12px] text-muted lg:text-[13px]">
+          <p className="mt-1.5 text-[13px] leading-6 text-muted lg:text-[13px]">
             {item.sizes.map((size) => `${size.nameAr} ${size.price}`).join("  ·  ")}
           </p>
         ) : item.description ? (
-          <p className="mt-1 text-[12px] text-muted lg:text-[13px]">{item.description}</p>
+          <p className="mt-1.5 text-[13px] leading-6 text-muted lg:text-[13px]">{item.description}</p>
         ) : (
-          <p className="mt-1 text-[12px] text-muted lg:text-[13px]">{item.nameEn}</p>
+          <p className="mt-1.5 text-[13px] leading-6 text-muted lg:text-[13px]">{item.nameEn}</p>
         )}
       </div>
     </Link>

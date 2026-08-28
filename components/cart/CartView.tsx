@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Trash2 } from "lucide-react";
+import { ArrowRight, LoaderCircle, Trash2 } from "lucide-react";
 import { QuantitySelector } from "@/components/shared/QuantitySelector";
 import { useHydratedCart } from "@/components/menu/CartBar";
 import { getCartSubtotal, useCartStore } from "@/lib/cart";
@@ -27,6 +27,7 @@ export function CartView({ branch }: { branch: Branch }) {
   const [notes, setNotes] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
+  const [goingBack, setGoingBack] = useState(false);
 
   async function sendOrder() {
     if (!name.trim() || !phone.trim()) {
@@ -79,8 +80,21 @@ export function CartView({ branch }: { branch: Branch }) {
   return (
     <main className="min-h-svh bg-black px-4 py-6">
       <VisitTracker page="cart" branchId={branch.id} />
-      <Link href={`/${branch.slug}/menu`} className="inline-flex items-center gap-1 text-[14px] text-muted">
-        <ArrowRight className="size-4" /> رجوع للمنيو
+      <Link
+        href={`/${branch.slug}/menu`}
+        onClick={() => setGoingBack(true)}
+        className="inline-flex min-h-9 items-center gap-1.5 text-[14px] text-muted"
+      >
+        {goingBack ? (
+          <>
+            <LoaderCircle className="size-4 animate-spin" />
+            جاري التحميل
+          </>
+        ) : (
+          <>
+            <ArrowRight className="size-4" /> رجوع للمنيو
+          </>
+        )}
       </Link>
       <h1 className="mt-4 text-3xl font-semibold">السلة</h1>
       <p className="mt-1 text-gold">{branch.nameAr}</p>
@@ -90,8 +104,19 @@ export function CartView({ branch }: { branch: Branch }) {
       ) : lines.length === 0 ? (
         <p className="mt-10 border border-line bg-paper p-6 text-center text-muted">
           السلة فاضية.{" "}
-          <Link href={`/${branch.slug}/menu`} className="font-semibold text-gold">
-            ارجع للمنيو
+          <Link
+            href={`/${branch.slug}/menu`}
+            onClick={() => setGoingBack(true)}
+            className="inline-flex items-center gap-1.5 font-semibold text-gold"
+          >
+            {goingBack ? (
+              <>
+                <LoaderCircle className="size-4 animate-spin" />
+                جاري التحميل
+              </>
+            ) : (
+              "ارجع للمنيو"
+            )}
           </Link>
         </p>
       ) : (

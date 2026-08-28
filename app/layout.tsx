@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Cairo } from "next/font/google";
+import { siteUrlSync } from "@/lib/site-url";
 import "./globals.css";
 
 const cairo = Cairo({
@@ -9,14 +10,8 @@ const cairo = Cairo({
   weight: ["400", "500", "600", "700", "800", "900"],
 });
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : "http://localhost:3001");
-
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(siteUrlSync()),
   title: "مطاعم خميس",
   description: "منيو فروع نابلس وجنين — اطلب أونلاين أو امسح رمز الطاولة.",
   icons: { icon: "/logo.png" },

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { LinktreePage } from "@/components/links/LinktreePage";
-import { siteUrl } from "@/lib/cn";
+import { siteUrl } from "@/lib/site-url";
 import { isBranchSlug } from "@/lib/qr";
 import { getBranchMenu } from "@/lib/queries";
 
@@ -15,5 +15,5 @@ export default async function BranchLinksPage({
   if (!isBranchSlug(branch)) notFound();
   const menu = await getBranchMenu(branch);
   if (!menu) notFound();
-  return <LinktreePage branch={menu} pageUrl={`${siteUrl()}/${menu.slug}`} />;
+  return <LinktreePage branch={menu} pageUrl={`${await siteUrl()}/${menu.slug}`} />;
 }

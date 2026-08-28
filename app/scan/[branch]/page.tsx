@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { ScanPoster } from "@/components/qr/ScanPoster";
-import { siteUrl } from "@/lib/cn";
+import { siteUrl } from "@/lib/site-url";
 import { isBranchSlug } from "@/lib/qr";
 import { getBranchMenu } from "@/lib/queries";
 
@@ -15,5 +15,5 @@ export default async function ScanPage({
   if (!isBranchSlug(branch)) notFound();
   const menu = await getBranchMenu(branch);
   if (!menu) notFound();
-  return <ScanPoster branch={menu} url={`${siteUrl()}/view/${menu.slug}`} />;
+  return <ScanPoster branch={menu} url={`${await siteUrl()}/view/${menu.slug}`} />;
 }
