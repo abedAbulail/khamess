@@ -86,7 +86,7 @@ export function ItemDetail({
         </div>
 
         <section className="flex flex-col px-5 pt-7 sm:px-8 lg:justify-center lg:px-12 lg:py-16">
-          <p className="text-[12px] tracking-[0.25em] text-gold lg:text-[13px]">{category.nameAr}</p>
+          <p className="text-[13px] text-gold lg:text-[14px]">{category.nameAr}</p>
           <h1 className="mt-2 text-3xl font-semibold lg:text-5xl">{item.nameAr}</h1>
           <p className="mt-1 text-[14px] text-muted lg:mt-3 lg:text-[16px]">{item.nameEn}</p>
           {item.description ? (
@@ -97,7 +97,7 @@ export function ItemDetail({
 
           {item.sizes.length > 1 ? (
             <div className="mt-8 lg:mt-10">
-              <p className="text-[12px] tracking-[0.2em] text-gold">اختر الحجم</p>
+              <p className="text-[13px] text-gold">اختر الحجم</p>
               <div className="mt-3 grid grid-cols-3 gap-2 lg:max-w-md lg:gap-3">
                 {item.sizes.map((size) => (
                   <button
@@ -132,7 +132,7 @@ export function ItemDetail({
           ) : (
             <div className="lg:mt-2 lg:max-w-md">
               <div className="mt-8 flex items-center justify-between">
-                <p className="text-[13px] tracking-[0.16em] text-gold">الكمية</p>
+                <p className="text-[13px] text-gold">الكمية</p>
                 <QuantitySelector value={qty} onChange={setQty} />
               </div>
               <button

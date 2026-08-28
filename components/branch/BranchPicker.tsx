@@ -90,7 +90,7 @@ function BranchDoor({
         <div className="absolute inset-0 bg-black/55" />
         <div className="absolute inset-0 flex items-center justify-center p-8">
           <div>
-            <p className="text-[12px] tracking-[0.35em] text-gold">مطعم خميس</p>
+            <p className="text-[13px] font-medium text-gold">مطعم خميس</p>
             <h1 className="mt-2 text-4xl font-semibold sm:text-6xl">{branch.city}</h1>
             <p className="mt-2 text-[15px] text-muted">{branch.address}</p>
             <span className="mt-6 inline-flex min-h-12 min-w-40 items-center justify-center gap-2 bg-gold px-6 text-[15px] font-semibold text-black">

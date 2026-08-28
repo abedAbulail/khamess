@@ -39,12 +39,20 @@ html,
 body {
   background: var(--black);
   color: var(--ink);
+  letter-spacing: 0;
+  word-spacing: 0;
+}
+
+html[lang="ar"] :where(h1, h2, h3, h4, h5, p, span, a, button, label, li, td, th) {
+  letter-spacing: 0 !important;
 }
 
 body {
   font-family: var(--font-sans);
   min-height: 100%;
   overflow-x: hidden;
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
 }
 
 ::selection {

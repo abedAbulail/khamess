@@ -130,7 +130,7 @@ export function LinktreePage({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/logo.png" alt="مطعم خميس" className="size-full object-contain" />
               </div>
-              <p className="mt-8 text-[13px] tracking-[0.35em] text-gold">مطعم خميس</p>
+              <p className="mt-8 text-[14px] font-medium text-gold">مطعم خميس</p>
               <h1 className="mt-3 text-3xl font-semibold">أهلاً وسهلاً</h1>
               <p className="mt-3 max-w-xs text-[16px] leading-8 text-muted">
                 مرحباً بكم في فرع {branch.city}
@@ -166,7 +166,7 @@ export function LinktreePage({
               <img src="/logo.png" alt="مطعم خميس" className="size-full object-contain" />
             </div>
             <p className="mt-5 text-[15px] font-semibold text-gold">{branch.nameAr}</p>
-            <p className="mt-1 text-[12px] tracking-[0.28em] text-muted">
+            <p className="mt-1 text-[13px] text-muted">
               تأسس عام {branch.founded}
             </p>
           </div>
@@ -221,7 +221,7 @@ export function LinktreePage({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/history.jpg" alt="تاريخ مطعم خميس" className="h-44 w-full object-cover opacity-80" />
           <div className="p-5">
-            <p className="text-[11px] tracking-[0.28em] text-gold">منذ ١٩٦٨</p>
+            <p className="text-[13px] text-gold">منذ ١٩٦٨</p>
             <p className="mt-2 text-[14px] leading-7 text-muted">
               مطعم خميس — حمص، إفطار، مشاوي، ومعجنات في نابلس وجنين.
             </p>
@@ -232,7 +232,7 @@ export function LinktreePage({
         </section>
 
         <section className="mt-8 border border-line bg-paper p-5 text-center">
-          <p className="text-[12px] tracking-[0.25em] text-gold">رمز الفرع</p>
+          <p className="text-[13px] text-gold">رمز الفرع</p>
           <div id="linktree-qr" className="mx-auto mt-4 grid w-fit place-items-center bg-white p-3">
             <QRCodeCanvas value={url} size={180} includeMargin />
           </div>

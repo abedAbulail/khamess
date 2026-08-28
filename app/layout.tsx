@@ -8,6 +8,8 @@ const cairo = Cairo({
   variable: "--font-cairo",
   subsets: ["arabic", "latin"],
   weight: ["400", "500", "600", "700", "800", "900"],
+  display: "swap",
+  adjustFontFallback: false,
 });
 
 export const metadata: Metadata = {
@@ -31,8 +33,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="ar" dir="rtl" className={`${cairo.variable} h-full antialiased`}>
-      <body className="min-h-full bg-black font-sans text-ink">{children}</body>
+    <html lang="ar" dir="rtl" className={`${cairo.variable} h-full`}>
+      <body className={`${cairo.className} min-h-full bg-black text-ink`}>{children}</body>
     </html>
   );
 }
