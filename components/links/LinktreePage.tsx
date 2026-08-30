@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
-import { Download, LoaderCircle, Menu, MessageCircle, Music2, Share2 } from "lucide-react";
-import { QRCodeCanvas } from "qrcode.react";
+import { LoaderCircle, Menu, MessageCircle, Music2, Share2 } from "lucide-react";
 import type { Branch } from "@/lib/types";
 import { VisitTracker } from "@/lib/visit-client";
 import { getWhatsAppUrl } from "@/lib/whatsapp";
@@ -62,15 +61,6 @@ export function LinktreePage({
       show: true,
     },
   ].filter((link) => link.show);
-
-  function downloadQr() {
-    const canvas = document.querySelector("#linktree-qr canvas") as HTMLCanvasElement | null;
-    if (!canvas) return;
-    const link = document.createElement("a");
-    link.href = canvas.toDataURL("image/png");
-    link.download = `khamis-${branch.slug}-qr.png`;
-    link.click();
-  }
 
   async function sharePage() {
     const payload = {
@@ -218,30 +208,16 @@ export function LinktreePage({
           </div>
         </div>
 
-        <div id="linktree-qr" className="pointer-events-none fixed -left-[9999px] top-0" aria-hidden>
-          <QRCodeCanvas value={url} size={180} includeMargin />
-        </div>
-
-        <section className="mt-6">
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={downloadQr}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-gold text-[14px] font-semibold text-black"
-            >
-              <Download className="size-4" />
-              تنزيل
-            </button>
-            <button
-              type="button"
-              onClick={() => void sharePage()}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-gold/80 bg-black/30 text-[14px] font-semibold text-gold backdrop-blur-md"
-            >
-              <Share2 className="size-4" />
-              مشاركة
-            </button>
-          </div>
-          {shareNote ? <p className="mt-3 text-center text-[12px] text-ink/70">{shareNote}</p> : null}
+        <section className="mt-6 flex flex-col items-center">
+          <button
+            type="button"
+            onClick={() => void sharePage()}
+            className="inline-flex items-center justify-center gap-1.5 rounded-full border border-gold/50 bg-transparent px-3.5 py-1.5 text-[12px] font-medium text-gold"
+          >
+            <Share2 className="size-3.5" />
+            مشاركة
+          </button>
+          {shareNote ? <p className="mt-2 text-center text-[12px] text-ink/70">{shareNote}</p> : null}
         </section>
       </div>
     </main>
