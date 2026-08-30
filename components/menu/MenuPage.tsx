@@ -74,8 +74,11 @@ export function MenuPage({
               تأسس عام {menu.founded}
             </p>
             <h1 className="mt-2 text-3xl font-semibold lg:text-5xl">
-              {view ? "قائمة الطعام" : "المنيو"}
+              Menu
             </h1>
+            <p className="mt-1 text-[16px] font-medium text-gold lg:mt-2 lg:text-[20px]">
+              قائمة الطعام
+            </p>
             <p className="mt-1 text-[14px] text-white/75 lg:mt-3 lg:text-[18px]">{menu.nameAr}</p>
             {view ? (
               <p className="mt-3 max-w-sm text-[13px] leading-6 text-white/70 lg:max-w-md lg:text-[15px]">

@@ -12,6 +12,7 @@ export type ItemSeed = {
   nameAr: string;
   nameEn: string;
   description?: string;
+  imageUrl?: string;
   sizes: SizeSeed[];
 };
 
@@ -62,8 +63,9 @@ function i(
   nameEn: string,
   sizes: SizeSeed[],
   description?: string,
+  imageUrl?: string,
 ): ItemSeed {
-  return { slug, nameAr, nameEn, description, sizes };
+  return { slug, nameAr, nameEn, description, imageUrl, sizes };
 }
 
 export const insideCategories: CategorySeed[] = [
@@ -127,6 +129,7 @@ export const insideCategories: CategorySeed[] = [
       i("meat-fakhara", "فخارة لحمة", "Meat clay pot", [one(60)], "مع سلطات وبطاطا"),
       i("chicken-fakhara", "فخارة دجاج", "Chicken clay pot", [one(50)], "مع سلطات وبطاطا"),
       i("mansaf", "منسف لحمة", "Lamb mansaf", [one(80)], "مع سلطات وبطاطا"),
+      i("kabsa", "كبسة", "Kabsa", [one(55)], "مع سلطات وبطاطا", "/nablus-platter.jpg"),
       i("fettuccine", "فوتوتشيني", "Fettuccine", [one(35)]),
       i("chicken-fettuccine", "فوتوتشيني بالدجاج", "Chicken fettuccine", [one(45)]),
     ],
@@ -271,6 +274,7 @@ export const outsideCategories: CategorySeed[] = [
       i("meat-fakhara", "فخارة لحمة", "Meat clay pot", [one(50)], "مع سلطات وبطاطا"),
       i("chicken-fakhara", "فخارة دجاج", "Chicken clay pot", [one(40)], "مع سلطات وبطاطا"),
       i("mansaf", "منسف لحمة", "Lamb mansaf", [one(60)], "مع سلطات وبطاطا"),
+      i("kabsa", "كبسة", "Kabsa", [one(45)], "مع سلطات وبطاطا", "/nablus-platter.jpg"),
       i("fettuccine", "فوتوتشيني", "Fettuccine", [one(30)]),
       i("chicken-fettuccine", "فوتوتشيني بالدجاج", "Chicken fettuccine", [one(40)]),
       i("healthy", "وجبة صحية مع أرز", "Healthy meal with rice", [one(35)]),

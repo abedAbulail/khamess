@@ -78,7 +78,7 @@ function fromSeed(slug: BranchSlug, channel: MenuChannel): BranchMenu {
         nameEn: item.nameEn,
         description: item.description ?? "",
         slug: item.slug,
-        imageUrl: "",
+        imageUrl: item.imageUrl ?? "",
         available: true,
         sortOrder: itemIndex,
         sizes: item.sizes.map((size, sizeIndex) => ({

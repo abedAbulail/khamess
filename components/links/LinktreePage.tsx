@@ -9,6 +9,10 @@ import type { Branch } from "@/lib/types";
 import { VisitTracker } from "@/lib/visit-client";
 import { getWhatsAppUrl } from "@/lib/whatsapp";
 
+function branchBackground(slug: Branch["slug"]) {
+  return slug === "jenin" ? "/jenin-welcome.jpg" : "/nablus-welcome.jpg";
+}
+
 export function LinktreePage({
   branch,
   pageUrl,
@@ -21,6 +25,7 @@ export function LinktreePage({
   const [welcome, setWelcome] = useState(true);
   const [menuLoading, setMenuLoading] = useState(false);
   const [goingBack, setGoingBack] = useState(false);
+  const background = branchBackground(branch.slug);
 
   useEffect(() => {
     setUrl(window.location.origin + `/${branch.slug}`);
@@ -31,42 +36,30 @@ export function LinktreePage({
     return () => window.clearTimeout(timer);
   }, []);
 
-  const links = [
-    {
-      label: "المنيو",
-      href: `/${branch.slug}/menu`,
-      icon: Menu,
-      primary: true,
-      show: true,
-    },
+  const iconLinks = [
     {
       label: "واتساب",
       href: getWhatsAppUrl(branch.whatsapp, `مرحبا، بدي أطلب من فرع ${branch.city}`),
       icon: MessageCircle,
-      primary: false,
       show: Boolean(branch.whatsapp),
-      external: true,
     },
     {
       label: "فيسبوك",
       href: branch.facebook,
       icon: FacebookIcon,
       show: true,
-      external: true,
     },
     {
       label: "إنستغرام",
       href: branch.instagram,
       icon: InstagramIcon,
       show: true,
-      external: true,
     },
     {
       label: "تيك توك",
       href: branch.tiktok,
       icon: Music2,
       show: true,
-      external: true,
     },
   ].filter((link) => link.show);
 
@@ -103,8 +96,18 @@ export function LinktreePage({
   }
 
   return (
-    <main className="relative min-h-svh bg-black text-ink">
+    <main className="relative min-h-svh overflow-hidden text-ink">
       <VisitTracker page="linktree" branchId={branch.id} />
+
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={background}
+        alt=""
+        className="absolute inset-0 size-full object-cover"
+      />
+      <div className="absolute inset-0 bg-black/55" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_bottom,#050505cc_0%,#05050566_28%,#05050573_62%,#050505e6_100%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(ellipse_at_top,#e6911033,transparent_70%)]" />
 
       <AnimatePresence>
         {welcome ? (
@@ -116,8 +119,11 @@ export function LinktreePage({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.8, ease: "easeInOut" }}
-            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black px-8 text-center"
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center px-8 text-center"
           >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={background} alt="" className="absolute inset-0 size-full object-cover" />
+            <div className="absolute inset-0 bg-black/70" />
             <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,#e6911033_0%,#e6911014_40%,transparent_100%)]" />
             <motion.div
               initial={{ opacity: 1, y: 0 }}
@@ -143,104 +149,85 @@ export function LinktreePage({
         ) : null}
       </AnimatePresence>
 
-      <section className="relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,#e6911033_0%,#e691101a_28%,#e691100d_52%,transparent_100%)]" />
-        <div className="relative mx-auto max-w-md px-6 pb-10 pt-8">
+      <div className="relative z-10 mx-auto flex min-h-svh max-w-md flex-col px-6 pb-8 pt-6">
+        <Link
+          href="/"
+          onClick={() => setGoingBack(true)}
+          className="inline-flex min-h-9 w-fit items-center gap-1.5 text-[13px] text-ink/70"
+        >
+          {goingBack ? (
+            <>
+              <LoaderCircle className="size-4 animate-spin" />
+              جاري التحميل
+            </>
+          ) : (
+            "← كل الفروع"
+          )}
+        </Link>
+
+        <div className="flex flex-1 flex-col items-center justify-center text-center">
+          <div className="size-36 sm:size-40">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="مطعم خميس" className="size-full object-contain" />
+          </div>
+          <p className="mt-5 text-[16px] font-semibold text-gold">{branch.nameAr}</p>
+          <p className="mt-1 text-[13px] text-ink/65">تأسس عام {branch.founded}</p>
+
           <Link
-            href="/"
-            onClick={() => setGoingBack(true)}
-            className="inline-flex min-h-9 items-center gap-1.5 text-[13px] text-muted"
+            href={`/${branch.slug}/menu`}
+            onClick={() => setMenuLoading(true)}
+            aria-busy={menuLoading}
+            className="mt-8 flex min-h-14 w-full items-center justify-start gap-3 rounded-xl bg-gold px-5 text-[17px] font-semibold text-black shadow-[0_10px_28px_rgba(230,145,16,0.28)]"
           >
-            {goingBack ? (
-              <>
-                <LoaderCircle className="size-4 animate-spin" />
-                جاري التحميل
-              </>
-            ) : (
-              "← كل الفروع"
-            )}
+            <span className="flex items-center gap-3">
+              {menuLoading ? (
+                <LoaderCircle className="size-5 animate-spin" />
+              ) : (
+                <Menu className="size-5" />
+              )}
+              {menuLoading ? "جاري التحميل" : "Menu · قائمة الطعام"}
+            </span>
           </Link>
-          <div className="mt-8 flex flex-col items-center text-center">
-            <div className="size-48 sm:size-56">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.png" alt="مطعم خميس" className="size-full object-contain" />
-            </div>
-            <p className="mt-5 text-[15px] font-semibold text-gold">{branch.nameAr}</p>
-            <p className="mt-1 text-[13px] text-muted">
-              تأسس عام {branch.founded}
-            </p>
-          </div>
-        </div>
-      </section>
 
-      <div className="relative mx-auto max-w-md px-6 pb-10">
-        <div className="flex flex-col gap-3">
-          {links.map((link) => {
-            const Icon = link.icon;
-            const className = link.primary
-              ? "flex min-h-14 items-center justify-start gap-3 bg-gold px-5 text-[17px] font-semibold text-black"
-              : "flex min-h-14 items-center justify-start gap-3 border border-line bg-paper px-5 text-[16px]";
-            const inner = (
-              <span className="flex items-center gap-3">
-                {link.primary && menuLoading ? (
-                  <LoaderCircle className="size-5 animate-spin" />
-                ) : (
-                  <Icon className="size-5" />
-                )}
-                {link.primary && menuLoading ? "جاري التحميل" : link.label}
-              </span>
-            );
-            if (link.external && !link.href) {
+          <div className="mt-6 flex items-center justify-center gap-3">
+            {iconLinks.map((link) => {
+              const Icon = link.icon;
+              const className =
+                "grid size-12 place-items-center rounded-full border border-gold/45 bg-black/35 text-gold backdrop-blur-md transition hover:border-gold hover:bg-gold hover:text-black";
+              const inner = <Icon className="size-5" />;
+              if (!link.href) {
+                return (
+                  <span key={link.label} aria-label={link.label} className={`${className} opacity-40`}>
+                    {inner}
+                  </span>
+                );
+              }
               return (
-                <div key={link.label} className={`${className} opacity-50`}>
+                <a
+                  key={link.label}
+                  href={link.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={link.label}
+                  className={className}
+                >
                   {inner}
-                </div>
+                </a>
               );
-            }
-            return link.external ? (
-              <a key={link.label} href={link.href} target="_blank" rel="noreferrer" className={className}>
-                {inner}
-              </a>
-            ) : (
-              <Link
-                key={link.label}
-                href={link.href}
-                onClick={() => {
-                  if (link.primary) setMenuLoading(true);
-                }}
-                className={className}
-                aria-busy={link.primary ? menuLoading : undefined}
-              >
-                {inner}
-              </Link>
-            );
-          })}
+            })}
+          </div>
         </div>
 
-        <section className="mt-10 border border-line">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/history.jpg" alt="تاريخ مطعم خميس" className="h-44 w-full object-cover opacity-80" />
-          <div className="p-5">
-            <p className="text-[13px] text-gold">منذ ١٩٦٨</p>
-            <p className="mt-2 text-[14px] leading-7 text-muted">
-              مطعم خميس — حمص، إفطار، مشاوي، ومعجنات في نابلس وجنين.
-            </p>
-            <p className="mt-3 text-[13px] text-gold" dir="ltr">
-              {branch.phone}
-            </p>
-          </div>
-        </section>
+        <div id="linktree-qr" className="pointer-events-none fixed -left-[9999px] top-0" aria-hidden>
+          <QRCodeCanvas value={url} size={180} includeMargin />
+        </div>
 
-        <section className="mt-8 border border-line bg-paper p-5 text-center">
-          <p className="text-[13px] text-gold">رمز الفرع</p>
-          <div id="linktree-qr" className="mx-auto mt-4 grid w-fit place-items-center bg-white p-3">
-            <QRCodeCanvas value={url} size={180} includeMargin />
-          </div>
-          <div className="mt-4 grid grid-cols-2 gap-2">
+        <section className="mt-6">
+          <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={downloadQr}
-              className="inline-flex min-h-12 items-center justify-center gap-2 bg-gold text-[14px] font-semibold text-black"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-gold text-[14px] font-semibold text-black"
             >
               <Download className="size-4" />
               تنزيل
@@ -248,13 +235,13 @@ export function LinktreePage({
             <button
               type="button"
               onClick={() => void sharePage()}
-              className="inline-flex min-h-12 items-center justify-center gap-2 border border-gold text-[14px] font-semibold text-gold"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-gold/80 bg-black/30 text-[14px] font-semibold text-gold backdrop-blur-md"
             >
               <Share2 className="size-4" />
               مشاركة
             </button>
           </div>
-          {shareNote ? <p className="mt-3 text-[12px] text-muted">{shareNote}</p> : null}
+          {shareNote ? <p className="mt-3 text-center text-[12px] text-ink/70">{shareNote}</p> : null}
         </section>
       </div>
     </main>

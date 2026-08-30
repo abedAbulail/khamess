@@ -91,7 +91,7 @@ async function seed() {
             nameEn: item.nameEn,
             description: item.description ?? "",
             slug: item.slug,
-            imageUrl: "",
+            imageUrl: item.imageUrl ?? "",
             available: true,
             sortOrder: itemIndex,
           });
