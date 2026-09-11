@@ -20,6 +20,16 @@ const images: Record<string, string> = {
   omelette: "/menus/omelette.jpg",
   "double-omelette": "/menus/omelette.jpg",
   "fried-cheese": "/menus/fried-cheese.jpg",
+  tabbouleh: "/menus/tabbouleh.jpg",
+  "tahini-salad": "/menus/tahini-salad.jpg",
+  "mashed-potato": "/menus/mashed-potato.jpg",
+  "eggplant-mutabbal": "/menus/eggplant-mutabbal.jpg",
+  "baba-ghanoush": "/menus/baba-ghanoush.jpg",
+  "eggplant-moussaka": "/menus/eggplant-moussaka.jpg",
+  "laban-mix": "/menus/laban-mix.jpg",
+  coleslaw: "/menus/coleslaw.jpg",
+  "turkish-salad": "/menus/turkish-salad.jpg",
+  "labneh-arugula": "/menus/labneh-arugula.jpg",
 };
 
 async function main() {

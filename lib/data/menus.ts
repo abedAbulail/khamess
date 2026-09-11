@@ -54,6 +54,9 @@ function one(price: number): SizeSeed {
 function sm(small: number, medium: number): SizeSeed[] {
   return [s(small), m(medium)];
 }
+function sl(small: number, large: number): SizeSeed[] {
+  return [s(small), l(large)];
+}
 function sml(small: number, medium: number, large: number): SizeSeed[] {
   return [s(small), m(medium), l(large)];
 }
@@ -78,6 +81,16 @@ const img = {
   hummusLamb: "/menus/hummus-lamb.jpg",
   omelette: "/menus/omelette.jpg",
   friedCheese: "/menus/fried-cheese.jpg",
+  tabbouleh: "/menus/tabbouleh.jpg",
+  tahiniSalad: "/menus/tahini-salad.jpg",
+  mashedPotato: "/menus/mashed-potato.jpg",
+  eggplantMutabbal: "/menus/eggplant-mutabbal.jpg",
+  babaGhanoush: "/menus/baba-ghanoush.jpg",
+  eggplantMoussaka: "/menus/eggplant-moussaka.jpg",
+  labanMix: "/menus/laban-mix.jpg",
+  coleslaw: "/menus/coleslaw.jpg",
+  turkishSalad: "/menus/turkish-salad.jpg",
+  labnehArugula: "/menus/labneh-arugula.jpg",
 } as const;
 
 export const insideCategories: CategorySeed[] = [
@@ -98,7 +111,7 @@ export const insideCategories: CategorySeed[] = [
       i("potatoes", "بطاطا", "Potatoes", sm(12, 18)),
       i("shakshuka", "شكشوكة تركية", "Turkish shakshuka", [s(15)], undefined, img.shakshuka),
       i("mixed-fried", "مقالي مشكل", "Mixed fried", [s(12)]),
-      i("labneh-arugula", "لبنة بالجرجير", "Labneh with arugula", [s(8)]),
+      i("labneh-arugula", "لبنة بالجرجير", "Labneh with arugula", [s(8)], undefined, img.labnehArugula),
       i("kibbeh", "كبة شامية", "Shami kibbeh", [one(16)]),
       i("shami-salad-5", "سلطة شامية مشكلة عدد 5", "Mixed shami salad (5 pcs)", [one(15)]),
       i("liver", "كبدة مع دبس الرمان", "Liver with pomegranate molasses", [s(22)]),
@@ -107,7 +120,7 @@ export const insideCategories: CategorySeed[] = [
       i("sunny-eggs", "بيض عيون", "Sunny side up", [s(10)]),
       i("cheese-omelette", "اومليت جبنة", "Cheese omelette", [s(12)], undefined, img.cheeseOmelette),
       i("double-omelette", "عجة دبل", "Double omelette", [s(12)], undefined, img.omelette),
-      i("laban-mix", "خلطة باللبن", "Yogurt mix", [s(7)]),
+      i("laban-mix", "خلطة باللبن", "Yogurt mix", [s(7)], undefined, img.labanMix),
       i("meat-tomato", "قلاية بندورة باللحمة", "Tomato pan with meat", [s(22)]),
       i("fried-tomato", "قلاية بندورة", "Tomato pan", [s(12)]),
       i("potato-egg", "بطاطا وبيض", "Potato and egg", [s(12)]),
@@ -163,7 +176,7 @@ export const insideCategories: CategorySeed[] = [
     nameAr: "سلطات خضراء",
     items: [
       i("arugula", "سلطة جرجير", "Arugula salad", [one(12)]),
-      i("tabbouleh", "تبولة", "Tabbouleh", [one(12)]),
+      i("tabbouleh", "تبولة", "Tabbouleh", [one(12)], undefined, img.tabbouleh),
       i("arabic", "عربية", "Arabic salad", [one(10)], undefined, img.arabic),
       i("fattoush-cheese", "فتوش بالجبنة", "Fattoush with cheese", [one(15)]),
       i("greek", "يونانية", "Greek salad", [one(15)]),
@@ -207,9 +220,25 @@ export const outsideCategories: CategorySeed[] = [
       i("foul-box", "فول", "Foul box", sm(4, 8)),
       i("musabaha-box", "مسبحة", "Musabaha box", sm(5, 9)),
       i("qudsia-box", "قدسية", "Qudsia box", sm(5, 9)),
-      i("salads-box", "سلطات ومتبلات", "Salads and mutabbal", sm(5, 10)),
-      i("labneh-box", "لبنة بالجرجير", "Labneh with arugula", sm(5, 10)),
       i("falafel-3", "فلافل 3 حبات", "Falafel 3 pcs", [one(1)]),
+    ],
+  },
+  {
+    slug: "dips",
+    nameAr: "متبلات وسلطات",
+    items: [
+      i("labneh-arugula", "لبنة بالجرجير", "Labneh with arugula", sl(5, 10), undefined, img.labnehArugula),
+      i("eggplant-mutabbal", "متبل باذنجان", "Eggplant mutabbal", sl(5, 10), undefined, img.eggplantMutabbal),
+      i("baba-ghanoush", "بابا غنوج", "Baba ghanoush", sl(5, 10), undefined, img.babaGhanoush),
+      i("eggplant-moussaka", "مسقعة باذنجان", "Eggplant moussaka", sl(5, 10), undefined, img.eggplantMoussaka),
+      i("avocado", "افوكادو", "Avocado", sl(5, 10)),
+      i("turkish-salad", "سلطة تركية", "Turkish salad", sl(5, 10), undefined, img.turkishSalad),
+      i("sausage-salad", "سلطة نقانق", "Sausage salad", sl(5, 10)),
+      i("nabulsi-salad", "سلطة نابلسية", "Nabulsi salad", sl(5, 10)),
+      i("laban-mix", "خلطة باللبن", "Yogurt mix", sl(5, 10), undefined, img.labanMix),
+      i("coleslaw", "كولسلو", "Coleslaw", sl(5, 10), undefined, img.coleslaw),
+      i("mashed-potato", "بطاطا مهروسة", "Mashed potatoes", sl(5, 10), undefined, img.mashedPotato),
+      i("tahini-salad", "سلطة بالطحينية", "Tahini salad", sl(5, 10), undefined, img.tahiniSalad),
     ],
   },
   {
@@ -262,7 +291,7 @@ export const outsideCategories: CategorySeed[] = [
     nameAr: "سلطات خضراء",
     items: [
       i("arugula", "سلطة جرجير", "Arugula salad", sm(12, 20)),
-      i("tabbouleh", "تبولة", "Tabbouleh", sm(12, 20)),
+      i("tabbouleh", "تبولة", "Tabbouleh", sm(12, 20), undefined, img.tabbouleh),
       i("quinoa", "تبولة كينوا", "Quinoa tabbouleh", sm(22, 30)),
       i("arabic", "عربية", "Arabic salad", sm(10, 20), undefined, img.arabic),
       i("fattoush-cheese", "فتوش بالجبنة", "Fattoush with cheese", sm(15, 22)),
