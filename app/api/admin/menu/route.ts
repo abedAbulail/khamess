@@ -12,12 +12,113 @@ import type { AdminPageId } from "@/lib/admin-pages";
 import { createId } from "@/lib/cn";
 import { getDb } from "@/lib/db";
 import { isMenuChannel } from "@/lib/queries";
+import type { MenuChannel } from "@/lib/types";
+
+type Db = NonNullable<ReturnType<typeof getDb>>;
+type SizeInput = { id?: string; label?: string; nameAr?: string; price?: number };
+type PlacementInput = {
+  channel?: string;
+  categorySlug?: string;
+  sizes?: SizeInput[];
+};
 
 function sizeLabelFromName(nameAr: string) {
   if (nameAr.includes("صغير")) return "S";
   if (nameAr.includes("وسط")) return "M";
   if (nameAr.includes("كبير")) return "L";
   return "one";
+}
+
+function asPlacements(value: unknown): PlacementInput[] {
+  if (!Array.isArray(value)) return [];
+  return value as PlacementInput[];
+}
+
+async function replaceSizes(db: Db, itemId: string, incoming: SizeInput[]) {
+  const existing = await db.select().from(itemSizes).where(eq(itemSizes.itemId, itemId));
+  const used = new Set<string>();
+  for (const [index, size] of incoming.entries()) {
+    const nameAr = String(size.nameAr ?? "حجم واحد").trim() || "حجم واحد";
+    const label = String(size.label ?? sizeLabelFromName(nameAr));
+    const price = Number(size.price) || 0;
+    const match =
+      existing.find((row) => row.label === label && !used.has(row.id)) ??
+      existing.find((row) => row.nameAr === nameAr && !used.has(row.id));
+    if (match) {
+      used.add(match.id);
+      await db
+        .update(itemSizes)
+        .set({ nameAr, label, price, sortOrder: index })
+        .where(eq(itemSizes.id, match.id));
+    } else {
+      await db.insert(itemSizes).values({
+        id: createId("size"),
+        itemId,
+        label,
+        nameAr,
+        price,
+        sortOrder: index,
+      });
+    }
+  }
+  for (const size of existing) {
+    if (!used.has(size.id)) {
+      await db.delete(itemSizes).where(eq(itemSizes.id, size.id));
+    }
+  }
+}
+
+async function itemsBySlug(db: Db, slug: string, actor: AdminActor) {
+  const rows = await db.select().from(menuItems).where(eq(menuItems.slug, slug));
+  return rows.filter((row) => canAccessBranch(actor, row.branchId));
+}
+
+async function insertGroupedItem(
+  db: Db,
+  params: {
+    branchId: string;
+    categoryId: string;
+    channel: MenuChannel;
+    nameAr: string;
+    nameEn: string;
+    description: string;
+    slug: string;
+    imageUrl: string;
+    available: boolean;
+    sizes: SizeInput[];
+  },
+) {
+  const itemId = createId("item");
+  const sizes = params.sizes.length
+    ? params.sizes
+    : [{ nameAr: "حجم واحد", label: "one", price: 0 }];
+  await db.insert(menuItems).values({
+    id: itemId,
+    branchId: params.branchId,
+    categoryId: params.categoryId,
+    channel: params.channel,
+    nameAr: params.nameAr,
+    nameEn: params.nameEn,
+    description: params.description,
+    slug: params.slug,
+    imageUrl: params.imageUrl,
+    available: params.available,
+    sortOrder: 99,
+  });
+  await db.insert(itemSizes).values(
+    sizes.map((size, index) => {
+      const sizeName = String(size.nameAr ?? "حجم واحد").trim() || "حجم واحد";
+      return {
+        id: createId("size"),
+        itemId,
+        label: String(size.label ?? sizeLabelFromName(sizeName)),
+        nameAr: sizeName,
+        price: Number(size.price) || 0,
+        sortOrder: index,
+      };
+    }),
+  );
+  return itemId;
 }
 
 function deny(actor: AdminActor | null, page: AdminPageId, branchId?: string) {
@@ -90,6 +191,97 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ ok: true });
     }
 
+    if (type === "item-group") {
+      const slug = String(body.slug ?? "").trim();
+      const blocked = deny(actor, "items");
+      if (blocked) return blocked;
+      if (!slug) return NextResponse.json({ error: "Missing slug" }, { status: 400 });
+
+      const rows = await itemsBySlug(db, slug, actor!);
+      if (!rows.length) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+      const allCategories = await db.select().from(categories);
+      const placements = asPlacements(body.placements);
+      const placementFor = (channel: string) =>
+        placements.find((entry) => entry.channel === channel);
+
+      for (const row of rows) {
+        const placement = placementFor(row.channel);
+        let categoryId = row.categoryId;
+        const categorySlug = placement?.categorySlug?.trim();
+        if (categorySlug) {
+          const match = allCategories.find(
+            (category) =>
+              category.branchId === row.branchId &&
+              category.channel === row.channel &&
+              category.slug === categorySlug,
+          );
+          if (match) categoryId = match.id;
+        }
+
+        await db
+          .update(menuItems)
+          .set({
+            ...(typeof body.nameAr === "string" ? { nameAr: body.nameAr } : {}),
+            ...(typeof body.nameEn === "string" ? { nameEn: body.nameEn } : {}),
+            ...(typeof body.description === "string"
+              ? { description: body.description }
+              : {}),
+            categoryId,
+            ...(typeof body.available === "boolean" ? { available: body.available } : {}),
+            ...(typeof body.imageUrl === "string" ? { imageUrl: body.imageUrl } : {}),
+          })
+          .where(eq(menuItems.id, row.id));
+
+        if (typeof body.imageUrl === "string" && !body.imageUrl.trim()) {
+          await db.delete(itemPhotos).where(eq(itemPhotos.itemId, row.id));
+        }
+        if (Array.isArray(placement?.sizes)) {
+          await replaceSizes(db, row.id, placement.sizes);
+        }
+      }
+
+      const branchRows = await db.select().from(branches);
+      const existingKeys = new Set(rows.map((row) => `${row.branchId}:${row.channel}`));
+      const sharedImage = rows.find((row) => row.imageUrl)?.imageUrl ?? "";
+      for (const branch of branchRows) {
+        if (!canAccessBranch(actor!, branch.id)) continue;
+        for (const placement of placements) {
+          const channel = String(placement.channel ?? "");
+          if (!isMenuChannel(channel)) continue;
+          if (existingKeys.has(`${branch.id}:${channel}`)) continue;
+          const categorySlug = String(placement.categorySlug ?? "").trim();
+          const category = allCategories.find(
+            (entry) =>
+              entry.branchId === branch.id &&
+              entry.channel === channel &&
+              entry.slug === categorySlug,
+          );
+          if (!category) continue;
+          await insertGroupedItem(db, {
+            branchId: branch.id,
+            categoryId: category.id,
+            channel,
+            nameAr: typeof body.nameAr === "string" ? body.nameAr : rows[0].nameAr,
+            nameEn: typeof body.nameEn === "string" ? body.nameEn : rows[0].nameEn,
+            description:
+              typeof body.description === "string" ? body.description : rows[0].description,
+            slug,
+            imageUrl: typeof body.imageUrl === "string" ? body.imageUrl : sharedImage,
+            available: typeof body.available === "boolean" ? body.available : rows[0].available,
+            sizes: Array.isArray(placement.sizes) ? placement.sizes : [],
+          });
+        }
+      }
+
+      await logActivity(actor!, {
+        action: "update_item",
+        page: "items",
+        detail: typeof body.nameAr === "string" ? body.nameAr : slug,
+      });
+      return NextResponse.json({ ok: true, count: rows.length });
+    }
+
     if (type === "item") {
       const id = String(body.id ?? "");
       const [row] = await db.select().from(menuItems).where(eq(menuItems.id, id));
@@ -114,39 +306,7 @@ export async function PATCH(request: Request) {
       }
 
       if (Array.isArray(body.sizes)) {
-        const incoming = body.sizes as Array<{
-          id?: string;
-          label?: string;
-          nameAr?: string;
-          price?: number;
-        }>;
-        const existing = await db.select().from(itemSizes).where(eq(itemSizes.itemId, id));
-        const keepIds = new Set(incoming.map((size) => size.id).filter(Boolean));
-        for (const size of existing) {
-          if (!keepIds.has(size.id)) {
-            await db.delete(itemSizes).where(eq(itemSizes.id, size.id));
-          }
-        }
-        for (const [index, size] of incoming.entries()) {
-          const nameAr = String(size.nameAr ?? "حجم واحد").trim() || "حجم واحد";
-          const label = String(size.label ?? sizeLabelFromName(nameAr));
-          const price = Number(size.price) || 0;
-          if (size.id) {
-            await db
-              .update(itemSizes)
-              .set({ nameAr, label, price, sortOrder: index })
-              .where(eq(itemSizes.id, size.id));
-          } else {
-            await db.insert(itemSizes).values({
-              id: createId("size"),
-              itemId: id,
-              label,
-              nameAr,
-              price,
-              sortOrder: index,
-            });
-          }
-        }
+        await replaceSizes(db, id, body.sizes as SizeInput[]);
       }
       await logActivity(actor!, {
         action: "update_item",
@@ -215,6 +375,57 @@ export async function POST(request: Request) {
     });
     await logActivity(actor!, { action: "create_category", page: "categories", detail: nameAr });
     return NextResponse.json({ ok: true, id });
+  }
+
+  if (type === "item-group") {
+    const blocked = deny(actor, "items");
+    if (blocked) return blocked;
+    const nameAr = String(body.nameAr ?? "").trim();
+    const placements = asPlacements(body.placements).filter((entry) =>
+      isMenuChannel(String(entry.channel ?? "")),
+    );
+    if (!nameAr || !placements.length) {
+      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+    }
+
+    const branchRows = await db.select().from(branches);
+    const allCategories = await db.select().from(categories);
+    const slug = `${nameAr.replace(/\s+/g, "-").slice(0, 32)}-${createId("d").slice(-8)}`;
+    const ids: string[] = [];
+
+    for (const branch of branchRows) {
+      if (!canAccessBranch(actor!, branch.id)) continue;
+      for (const placement of placements) {
+        const channel = String(placement.channel) as MenuChannel;
+        const categorySlug = String(placement.categorySlug ?? "").trim();
+        const category = allCategories.find(
+          (entry) =>
+            entry.branchId === branch.id &&
+            entry.channel === channel &&
+            entry.slug === categorySlug,
+        );
+        if (!category) continue;
+        const itemId = await insertGroupedItem(db, {
+          branchId: branch.id,
+          categoryId: category.id,
+          channel,
+          nameAr,
+          nameEn: String(body.nameEn ?? ""),
+          description: String(body.description ?? ""),
+          slug,
+          imageUrl: typeof body.imageUrl === "string" ? body.imageUrl : "",
+          available: true,
+          sizes: Array.isArray(placement.sizes) ? placement.sizes : [],
+        });
+        ids.push(itemId);
+      }
+    }
+
+    if (!ids.length) {
+      return NextResponse.json({ error: "No menus to add to" }, { status: 400 });
+    }
+    await logActivity(actor!, { action: "create_item", page: "items", detail: nameAr });
+    return NextResponse.json({ ok: true, slug, ids });
   }
 
   const branchId = String(body.branchId ?? "");
@@ -287,6 +498,19 @@ export async function DELETE(request: Request) {
     if (blocked) return blocked;
     await db.delete(categories).where(eq(categories.id, id));
     await logActivity(actor!, { action: "delete_category", page: "categories", detail: row?.nameAr ?? id });
+  } else if (kind === "item-group") {
+    const blocked = deny(actor, "items");
+    if (blocked) return blocked;
+    const rows = await itemsBySlug(db, id, actor!);
+    if (!rows.length) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    for (const row of rows) {
+      await db.delete(menuItems).where(eq(menuItems.id, row.id));
+    }
+    await logActivity(actor!, {
+      action: "delete_item",
+      page: "items",
+      detail: rows[0]?.nameAr ?? id,
+    });
   } else {
     const [row] = await db.select().from(menuItems).where(eq(menuItems.id, id));
     const blocked = deny(actor, "items", row?.branchId);

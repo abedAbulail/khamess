@@ -21,7 +21,8 @@ export async function POST(request: Request) {
   const form = await request.formData();
   const file = form.get("file");
   const itemId = String(form.get("itemId") ?? "");
-  if (!(file instanceof File) || !itemId) {
+  const slugParam = String(form.get("slug") ?? "");
+  if (!(file instanceof File) || (!itemId && !slugParam)) {
     return NextResponse.json({ error: "Missing file" }, { status: 400 });
   }
   if (file.size > 2_500_000) {
@@ -32,23 +33,40 @@ export async function POST(request: Request) {
   const data = Buffer.from(await file.arrayBuffer()).toString("base64");
 
   try {
-    const [item] = await db.select().from(menuItems).where(eq(menuItems.id, itemId));
-    if (!item || !canAccessBranch(actor, item.branchId)) {
+    let targets = [];
+    if (slugParam) {
+      targets = await db.select().from(menuItems).where(eq(menuItems.slug, slugParam));
+    } else {
+      const [item] = await db.select().from(menuItems).where(eq(menuItems.id, itemId));
+      if (!item) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      targets = await db.select().from(menuItems).where(eq(menuItems.slug, item.slug));
+    }
+
+    const allowed = targets.filter((item) => canAccessBranch(actor, item.branchId));
+    if (!allowed.length) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    await db
-      .insert(itemPhotos)
-      .values({ itemId, mime, data })
-      .onConflictDoUpdate({
-        target: itemPhotos.itemId,
-        set: { mime, data },
-      });
+    let url = "";
+    for (const item of allowed) {
+      await db
+        .insert(itemPhotos)
+        .values({ itemId: item.id, mime, data })
+        .onConflictDoUpdate({
+          target: itemPhotos.itemId,
+          set: { mime, data },
+        });
+      const imageUrl = itemPhotoUrl(item.id, Date.now());
+      await db.update(menuItems).set({ imageUrl }).where(eq(menuItems.id, item.id));
+      if (item.id === itemId || !url) url = imageUrl;
+    }
 
-    const imageUrl = itemPhotoUrl(itemId, Date.now());
-    await db.update(menuItems).set({ imageUrl }).where(eq(menuItems.id, itemId));
-    await logActivity(actor, { action: "upload_image", page: "items", detail: item.nameAr });
-    return NextResponse.json({ ok: true, url: imageUrl });
+    await logActivity(actor, {
+      action: "upload_image",
+      page: "items",
+      detail: allowed[0]?.nameAr ?? slugParam,
+    });
+    return NextResponse.json({ ok: true, url });
   } catch (error) {
     console.error("[upload]", error);
     return NextResponse.json({ error: "Upload failed" }, { status: 500 });
