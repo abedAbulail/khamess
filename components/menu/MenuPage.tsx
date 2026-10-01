@@ -265,15 +265,15 @@ type MenuBanner = {
 function branchBanners(menu: BranchMenu): MenuBanner[] {
   const kitchen: MenuBanner[] = [
     {
-      src: "/nablus-platter.jpg",
+      src: "/menu-photos/menu-platter.png",
       alt: "سفرة خميس",
       kicker: menu.slug === "jenin" ? "من مطبخ جنين" : "من مطبخ رفيديا",
       title: "على سفرتكم",
       text: "أرز، دجاج مشوي، وخضار طازجة — أكل البيت من مطبخ خميس.",
-      objectClass: "object-[center_40%]",
+      objectClass: "object-[center_68%]",
     },
     {
-      src: "/nablus-oven.jpg",
+      src: "/menu-photos/menu-salads.png",
       alt: "فرن خميس",
       kicker: "على أصولها",
       title: "من الفرن الحجري",
@@ -281,15 +281,15 @@ function branchBanners(menu: BranchMenu): MenuBanner[] {
         menu.slug === "jenin"
           ? "فخاراتنا تتحمّر على نار الحجر — طعم البيت، من جنين."
           : "فخاراتنا تتحمّر على نار الحجر — طعم البيت، من رفيديا.",
-      objectClass: "object-center",
+      objectClass: "object-[center_65%]",
     },
     {
-      src: "/nablus-team.jpg",
+      src: "/menu-photos/menu-grill.png",
       alt: "فريق مطعم خميس",
       kicker: "فريق خميس",
       title: "نطبخ لكم كل يوم",
       text: `طقم المطبخ في فرع ${menu.nameAr} جاهز يستقبلكم.`,
-      objectClass: "object-[center_28%]",
+      objectClass: "object-[center_68%]",
     },
   ];
 

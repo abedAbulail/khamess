@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   icons: { icon: "/logo.png" },
   openGraph: {
     title: "مطعم خميس",
-    description: "تأسس عام 1968 — فرع نابلس رفيديا وفرع جنين.",
+    description: "تأسس عام 1953 — فرع نابلس رفيديا وفرع جنين.",
     locale: "ar_AR",
     images: [{ url: "/logo.png" }],
   },

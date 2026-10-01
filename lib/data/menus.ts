@@ -368,7 +368,7 @@ export const branchSeeds: BranchSeed[] = [
     instagram: "",
     tiktok: "",
     heroImage: "/branches/nablus.jpg",
-    founded: "1968",
+    founded: "1953",
   },
   {
     id: "jenin",
@@ -383,6 +383,6 @@ export const branchSeeds: BranchSeed[] = [
     instagram: "",
     tiktok: "",
     heroImage: "/branches/jenin.jpg",
-    founded: "1968",
+    founded: "1953",
   },
 ];

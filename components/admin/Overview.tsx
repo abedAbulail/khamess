@@ -131,7 +131,7 @@ export function Overview({
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_0%_0%,rgba(230,145,16,0.22),transparent_55%)]" />
         <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-lg">
-            <p className="text-[12px] text-[var(--admin-accent)]">مطعم خميس · منذ 1968</p>
+            <p className="text-[12px] text-[var(--admin-accent)]">مطعم خميس · منذ 1953</p>
             <h2 className="mt-2 text-2xl font-semibold sm:text-3xl">إدارة المنيو والطلبات من مكان واحد</h2>
             <p className="mt-2 text-[14px] leading-7 text-[var(--admin-muted)]">
               اختر الفرع من صفحات التصنيفات أو الأصناف أو الطلبات، وعدّل الأسعار والصور مباشرة.

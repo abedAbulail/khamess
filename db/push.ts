@@ -21,7 +21,7 @@ async function push() {
     instagram text NOT NULL DEFAULT '',
     tiktok text NOT NULL DEFAULT '',
     hero_image text NOT NULL,
-    founded text NOT NULL DEFAULT '1968',
+    founded text NOT NULL DEFAULT '1953',
     sort_order integer NOT NULL DEFAULT 0
   )`;
 

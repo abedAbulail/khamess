@@ -19,7 +19,7 @@ export const branches = pgTable("khamis_branches", {
   instagram: text("instagram").notNull().default(""),
   tiktok: text("tiktok").notNull().default(""),
   heroImage: text("hero_image").notNull(),
-  founded: text("founded").notNull().default("1968"),
+  founded: text("founded").notNull().default("1953"),
   sortOrder: integer("sort_order").notNull().default(0),
 });
 
