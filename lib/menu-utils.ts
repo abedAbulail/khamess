@@ -13,7 +13,5 @@ export function priceLabel(item: MenuItem) {
 }
 
 export function hasItemImage(url?: string | null) {
-  if (!url?.trim()) return false;
-  if (url.includes("unsplash.com")) return false;
-  return true;
+  return Boolean(url?.trim());
 }
